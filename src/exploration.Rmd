@@ -1,0 +1,13 @@
+Exploration
+===========
+
+``` {r global_options}
+require(knitr)
+opts_knit$set(root.dir="..")
+opts_chunk$set(fig.path="../graphs/exploration/")
+```
+
+```{r startup}
+require('ProjectTemplate')
+load.project()
+```
