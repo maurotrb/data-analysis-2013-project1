@@ -1,0 +1,37 @@
+Munging
+=======
+
+Munging operations to obtain tidy data.
+
+```{r external_code, echo=FALSE}
+read_chunk("01-A.R")
+```
+
+Converting character percentage values to numeric values
+-----------------------------------------------------
+
+Interest.Rate and Debt.To.Income.Ratio are imported as character values, but they are percentage values.
+Both are formatted with a percent sign, e.g. "10%".
+I substitute away the percent sign and convert the values to numeric.
+
+```{r, eval=FALSE}
+<<percentage_to_numeric>>
+```
+
+Converting character month values to integer values
+-----------------------------------------------------
+
+Convert Loan.Length to integer
+```{r, eval=FALSE}
+<<months_to_integer>>
+```
+
+Convert Loan.Purpose values to pascal case with point separator
+```{r, eval=FALSE}
+<<purpose_to_pc>>
+```
+
+Convert Home.Ownership values to pascal case
+```{r, eval=FALSE}
+<<ownership_to_pc>>
+```
