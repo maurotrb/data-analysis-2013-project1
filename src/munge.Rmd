@@ -1,0 +1,112 @@
+Munge
+=====
+
+Tidying data before exploration and analysis.
+
+Startup
+-------
+
+Setting knitr options.
+``` {r knitr_options}
+require(knitr)
+opts_knit$set(root.dir="..")
+opts_chunk$set(fig.path="../graphs/munge-")
+```
+
+Load project with ProjectTemplate.
+```{r load_project, warning=FALSE}
+require('ProjectTemplate')
+load.project()
+```
+
+Load munge R script.
+```{r external_code}
+read_chunk("munge/01-A.R")
+```
+
+Interest.Rate and Debt.To.Income.Ratio, from character to numeric
+-----------------------------------------------------------------
+`Interest.Rate` and `Debt.To.Income.Ratio` are imported as character, but they are percentages.
+
+Both are formatted with a percent sign:
+```{r, echo=FALSE}
+loansDataRaw[1:5, c(3,6)]
+```
+
+The percent signs are substituted away and the values are converted to numeric.
+```{r, eval=FALSE}
+<<percentage_to_numeric>>
+```
+
+Loan.Length, from character to integer
+--------------------------------------
+`Loan.Length` is imported as character, but it represents a time span in months.
+
+It is formatted with the label "months":
+```{r, echo=FALSE}
+names(table(loansDataRaw$Loan.Length))
+```
+
+The "months" labels are substituted away, the values are converted to integer,
+and the name changed to `Loan.Length.Months`.
+```{r, eval=FALSE}
+<<months_to_integer>>
+```
+
+Loan.Purpose, formatted with pascal case and dots
+-------------------------------------------------
+`Loan.Purpose` values are in lower case separated by underscores.
+```{r, echo=FALSE}
+names(table(loansDataRaw$Loan.Purpose))
+```
+
+Values are converted to pascal case (first letter of every word in upper case,
+other letters in lower case), and undescores substituted wiht dots.
+```{r, eval=FALSE}
+<<purpose_to_pc>>
+```
+
+Home.Ownership, formatted with pascal case
+------------------------------------------
+`Home.Ownership` values are in upper case.
+```{r, echo=FALSE}
+names(table(loansDataRaw$Home.Ownership))
+```
+
+Values are converted to pascal case (first letter of every word in upper case,
+other letters in lower case).
+```{r, eval=FALSE}
+<<ownership_to_pc>>
+```
+
+Employment.Length, from character to integer
+---------------------------------------
+`Employment.Length` is imported as character, but it represents a time span in years.
+```{r, echo=FALSE}
+names(table(loansDataRaw$Employment.Length))
+```
+
+The conversion steps are:
+
+1.  substitute values representing less than one year (e.g. "< 1 year") with "0"
+2.  remove unnecessary characters from the other values, leaving only the number (e.g. from "2 years" to "2");
+    the value "10+ years", representing 10 or more years is substituted with 10
+3.  convert all values to integer; missing values "n/a" are coerced to NA
+
+```{r, eval=FALSE}
+<<emplength_to_integer>>
+```
+
+Adding columns with FICO.Range lower, upper and median values
+-------------------------------------------------------------
+`FICO.Range` is imported as character, but it represents ranges of credit score.
+```{r, echo=FALSE}
+names(table(loansDataRaw$FICO.Range))
+```
+
+Conversion to numerical values could be useful for the analysis.
+Three columns are added, with the lower bound, the upper bound and the median
+of the range.
+```{r, eval=FALSE}
+<<fico_lower_upper_median>>
+```
