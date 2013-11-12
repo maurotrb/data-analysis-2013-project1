@@ -18,3 +18,91 @@ Load project with ProjectTemplate.
 require('ProjectTemplate')
 load.project()
 ```
+
+Interest Rate
+-------------
+
+```{r rate_summary}
+summary(loansData$Interest.Rate)
+```
+
+```{r rate_boxplot, fig.height=5, fig.width=5}
+boxplot(loansData$Interest.Rate)
+```
+
+Interest Rate and Amount Funded
+-------------------------------
+
+```{r rate_funded_plot, fig.height=5, fig.width=5}
+plot(loansData$Amount.Funded.By.Investors, loansData$Interest.Rate, pch=19, cex=0.5)
+```
+
+Interest Rate and Loan Length
+-----------------------------
+
+```{r rate_length_summary}
+tapply(loansData$Interest.Rate, as.factor(loansData$Loan.Length.Months), summary)
+```
+
+```{r rate_length_boxplot, fig.height=5, fig.width=5}
+boxplot(loansData$Interest.Rate ~ as.factor(loansData$Loan.Length.Months))
+```
+
+Interest Rate and Loan Purpose
+------------------------------
+
+```{r rate_purpose_summary}
+tapply(loansData$Interest.Rate, as.factor(loansData$Loan.Purpose), summary)
+```
+
+```{r rate_purpose_boxplot, fig.height=5, fig.width=10}
+rateByPurpose = data.frame(Rate = loansData$Interest.Rate, Purpose = loansData$Loan.Purpose)
+rateByPurpose$Purpose <- with(rateByPurpose, reorder(Purpose, Rate, median, na.rm = TRUE))
+boxplot(Rate ~ Purpose, data = rateByPurpose, xaxt = "n")
+loansByPurpose <- table(rateByPurpose$Purpose)
+axis(1, las=2, at = 1:nrow(loansByPurpose), labels = names(loansByPurpose))
+```
+
+Interest Rate and Debt to Income Ratio
+--------------------------------------
+
+```{r rate_diratio_plot, fig.height=5, fig.width=5}
+plot(loansData$Debt.To.Income.Ratio, loansData$Interest.Rate, pch=19, cex=0.5)
+```
+
+Interest Rate and State
+-----------------------
+
+```{r rate_state_summary}
+tapply(loansData$Interest.Rate, as.factor(loansData$State), summary)
+```
+
+```{r rate_state_boxplot, fig.height=5, fig.width=10}
+rateByState = data.frame(Rate = loansData$Interest.Rate, State = loansData$State)
+rateByState$State <- with(rateByState, reorder(State, Rate, median, na.rm = TRUE))
+boxplot(Rate ~ State, data = rateByState, xaxt = "n")
+loansByState <- table(rateByState$State)
+axis(1, las=2, at = 1:nrow(loansByState), labels = names(loansByState))
+```
+
+Interest Rate and Home Ownership
+--------------------------------
+
+```{r rate_ownership_summary}
+tapply(loansData$Interest.Rate, as.factor(loansData$Home.Ownership), summary)
+```
+
+```{r rate_ownership_boxplot, fig.height=5, fig.width=10}
+rateByHomeOwnership = data.frame(Rate = loansData$Interest.Rate, HomeOwnership = loansData$Home.Ownership)
+rateByHomeOwnership$HomeOwnership <- with(rateByHomeOwnership, reorder(HomeOwnership, Rate, median, na.rm = TRUE))
+boxplot(Rate ~ HomeOwnership, data = rateByHomeOwnership, xaxt = "n")
+loansByHomeOwnership <- table(rateByHomeOwnership$HomeOwnership)
+axis(1, las=2, at = 1:nrow(loansByHomeOwnership), labels = names(loansByHomeOwnership))
+```
+
+Interest Rate and Monthly Income
+--------------------------------------
+
+```{r rate_income_plot, fig.height=5, fig.width=5}
+plot(loansData$Monthly.Income, loansData$Interest.Rate, pch=19, cex=0.5, log="x")
+```
