@@ -12,11 +12,15 @@ opts_knit$set(root.dir="..")
 opts_chunk$set(fig.path="../graphs/expl-")
 ```
 
+Load required libraries.
+```{r load_libraries, warning=FALSE}
+require(Hmisc)
+```
 Load project with ProjectTemplate.
 
 ```{r load_project, warning=FALSE}
 require('ProjectTemplate')
-load.project()
+reload.project()
 ```
 
 Interest Rate
@@ -30,8 +34,7 @@ summary(loansData$Interest.Rate)
 boxplot(loansData$Interest.Rate)
 ```
 
-Interest Rate and Amount Funded
--------------------------------
+### Interest Rate and Amount Funded
 
 ```{r rate_funded_plot, fig.height=5, fig.width=5}
 plot(loansData$Amount.Funded.By.Investors, loansData$Interest.Rate, pch=19, cex=0.5)
@@ -43,8 +46,7 @@ lines(loansData$Amount.Funded.By.Investors, lmAmountFunded$fitted,col="red",lwd=
 summary(lmAmountFunded)
 ```
 
-Interest Rate and Loan Length
------------------------------
+### Interest Rate and Loan Length
 
 ```{r rate_length_summary}
 tapply(loansData$Interest.Rate, as.factor(loansData$Loan.Length.Months), summary)
@@ -54,8 +56,7 @@ tapply(loansData$Interest.Rate, as.factor(loansData$Loan.Length.Months), summary
 boxplot(loansData$Interest.Rate ~ as.factor(loansData$Loan.Length.Months))
 ```
 
-Interest Rate and Loan Purpose
-------------------------------
+### Interest Rate and Loan Purpose
 
 ```{r rate_purpose_summary}
 tapply(loansData$Interest.Rate, as.factor(loansData$Loan.Purpose), summary)
@@ -69,8 +70,7 @@ loansByPurpose <- table(rateByPurpose$Purpose)
 axis(1, las=2, at = 1:nrow(loansByPurpose), labels = names(loansByPurpose))
 ```
 
-Interest Rate and Debt to Income Ratio
---------------------------------------
+### Interest Rate and Debt to Income Ratio
 
 ```{r rate_diratio_plot, fig.height=5, fig.width=5}
 plot(loansData$Debt.To.Income.Ratio, loansData$Interest.Rate, pch=19, cex=0.5)
@@ -82,8 +82,7 @@ lines(loansData$Debt.To.Income.Ratio, lmD2IRatio$fitted,col="red",lwd=3)
 summary(lmD2IRatio)
 ```
 
-Interest Rate and State
------------------------
+### Interest Rate and State
 
 ```{r rate_state_summary}
 tapply(loansData$Interest.Rate, as.factor(loansData$State), summary)
@@ -97,8 +96,7 @@ loansByState <- table(rateByState$State)
 axis(1, las=2, at = 1:nrow(loansByState), labels = names(loansByState))
 ```
 
-Interest Rate and Home Ownership
---------------------------------
+### Interest Rate and Home Ownership
 
 ```{r rate_ownership_summary}
 tapply(loansData$Interest.Rate, as.factor(loansData$Home.Ownership), summary)
@@ -112,8 +110,7 @@ loansByHomeOwnership <- table(rateByHomeOwnership$HomeOwnership)
 axis(1, las=2, at = 1:nrow(loansByHomeOwnership), labels = names(loansByHomeOwnership))
 ```
 
-Interest Rate and Monthly Income
---------------------------------
+### Interest Rate and Monthly Income
 
 ```{r rate_income_plot, fig.height=5, fig.width=5}
 withoutMonthlyIncomeNA <- loansData[!is.na(loansData$Monthly.Income),]
@@ -126,8 +123,7 @@ lines(withoutMonthlyIncomeNA$Monthly.Income, lmMonthlyIncome$fitted, col="red", 
 summary(lmMonthlyIncome)
 ```
 
-Interest Rate and FICO Range
-----------------------------
+### Interest Rate and FICO Range
 
 ```{r rate_fico_summary}
 tapply(loansData$Interest.Rate, as.factor(loansData$FICO.Range), summary)
@@ -151,8 +147,7 @@ lines(loansData$FICO.Median, lmFICORate$fitted,col="red",lwd=3)
 summary(lmFICORate)
 ```
 
-Interest Rate and Open Credit Lines
------------------------------------
+### Interest Rate and Open Credit Lines
 
 ```{r rate_lines_plot, fig.height=5, fig.width=5}
 withoutOpenCreditLinesNA <- loansData[!is.na(loansData$Open.CREDIT.Lines),]
@@ -165,8 +160,7 @@ lines(withoutOpenCreditLinesNA$Open.CREDIT.Lines, lmOpenCreditLines$fitted,col="
 summary(lmOpenCreditLines)
 ```
 
-Interest Rate and Revolving Credit Balance
-------------------------------------------
+### Interest Rate and Revolving Credit Balance
 
 ```{r rate_revolving_plot, fig.height=5, fig.width=5}
 withoutRevolvingCreditBalanceNA <- loansData[!is.na(loansData$Revolving.CREDIT.Balance)
@@ -180,8 +174,7 @@ lines(withoutRevolvingCreditBalanceNA$Revolving.CREDIT.Balance, lmRevolvingCredi
 summary(lmRevolvingCreditBalance)
 ```
 
-Interest Rate and Inquiries in the Last 6 Months
-------------------------------------------------
+### Interest Rate and Inquiries in the Last 6 Months
 
 ```{r rate_inquiries_plot, fig.height=5, fig.width=5}
 withoutInquiriesNA <- loansData[!is.na(loansData$Inquiries.in.the.Last.6.Months),]
@@ -194,8 +187,7 @@ lines(withoutInquiriesNA$Inquiries.in.the.Last.6.Months, lmInquiries$fitted, col
 summary(lmInquiries)
 ```
 
-Interest Rate and Employment Length
------------------------------------
+### Interest Rate and Employment Length
 
 ```{r rate_employment_plot, fig.height=5, fig.width=5}
 withoutEmploymentLengthNA <- loansData[!is.na(loansData$Employment.Length),]
