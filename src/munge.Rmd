@@ -13,10 +13,14 @@ opts_knit$set(root.dir="..")
 opts_chunk$set(fig.path="../graphs/munge-")
 ```
 
+Load required libraries.
+```{r load_libraries, warning=FALSE}
+require(Hmisc)
+```
 Load project with ProjectTemplate.
 ```{r load_project, warning=FALSE}
-require('ProjectTemplate')
-load.project()
+require(ProjectTemplate)
+reload.project()
 ```
 
 Load munge R script.
@@ -104,9 +108,19 @@ Adding columns with FICO.Range lower, upper and median values
 names(table(loansDataRaw$FICO.Range))
 ```
 
-Conversion to numerical values could be useful for the analysis.
+Conversion to numerical values could be useful for exploration and analysis.
 Three columns are added, with the lower bound, the upper bound and the median
 of the range.
 ```{r, eval=FALSE}
 <<fico_lower_upper_median>>
+```
+
+Adding columns with Amount.Funded.By.Investors ranges
+-----------------------------------------------------
+`Amount.Funded.By.Investors` is imported as numeric.
+
+Conversion to numerical values could be useful for exploration and analysis.
+One column is added, with eight quantile ranges.
+```{r, eval=FALSE}
+<<amount_funded_ranges>>
 ```

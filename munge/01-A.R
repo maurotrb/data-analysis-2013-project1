@@ -25,3 +25,6 @@ suppressWarnings(loansData$Employment.Length <- as.integer(loansData$Employment.
 loansData$FICO.Lower <- as.numeric(lapply(strsplit(loansData$FICO.Range,"-"),"[",1))
 loansData$FICO.Upper <- as.numeric(lapply(strsplit(loansData$FICO.Range,"-"),"[",2))
 loansData$FICO.Median <- (loansData$FICO.Lower + loansData$FICO.Upper) / 2
+
+## @knitr amount_funded_ranges
+loansData$Amount.Funded.Range <- cut2(loansData$Amount.Funded.By.Investors, g=4)
