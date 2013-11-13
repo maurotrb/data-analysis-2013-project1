@@ -35,6 +35,12 @@ Interest Rate and Amount Funded
 
 ```{r rate_funded_plot, fig.height=5, fig.width=5}
 plot(loansData$Amount.Funded.By.Investors, loansData$Interest.Rate, pch=19, cex=0.5)
+lmFunded <- lm(loansData$Interest.Rate ~ loansData$Amount.Funded.By.Investors)
+lines(loansData$Amount.Funded.By.Investors,lmFunded$fitted,col="red",lwd=3)
+```
+
+```{r rate_funded_lm_summary}
+summary(lmFunded)
 ```
 
 Interest Rate and Loan Length
@@ -68,6 +74,12 @@ Interest Rate and Debt to Income Ratio
 
 ```{r rate_diratio_plot, fig.height=5, fig.width=5}
 plot(loansData$Debt.To.Income.Ratio, loansData$Interest.Rate, pch=19, cex=0.5)
+lmDIRatio <- lm(loansData$Interest.Rate ~ loansData$Debt.To.Income.Ratio)
+lines(loansData$Debt.To.Income.Ratio,lmDIRatio$fitted,col="red",lwd=3)
+```
+
+```{r rate_diratio_lm_summary}
+summary(lmDIRatio)
 ```
 
 Interest Rate and State
@@ -101,8 +113,82 @@ axis(1, las=2, at = 1:nrow(loansByHomeOwnership), labels = names(loansByHomeOwne
 ```
 
 Interest Rate and Monthly Income
---------------------------------------
+--------------------------------
 
 ```{r rate_income_plot, fig.height=5, fig.width=5}
-plot(loansData$Monthly.Income, loansData$Interest.Rate, pch=19, cex=0.5, log="x")
+loansDataFilteredMINa <- loansData[!is.na(loansData$Monthly.Income),]
+plot(loansDataFilteredMINa$Monthly.Income, loansDataFilteredMINa$Interest.Rate, pch=19, cex=0.5, log="x")
+lmIncome <- lm(loansDataFilteredMINa$Interest.Rate ~ log(loansDataFilteredMINa$Monthly.Income))
+lines(loansDataFilteredMINa$Monthly.Income, lmIncome$fitted, col="red", lwd=3)
+```
+
+```{r rate_income_lm_summary}
+summary(lmIncome)
+```
+
+Interest Rate and FICO Range
+----------------------------
+
+```{r rate_fico_summary}
+tapply(loansData$Interest.Rate, as.factor(loansData$FICO.Range), summary)
+```
+
+```{r rate_fico_boxplot, fig.height=5, fig.width=10}
+rateByFICORange = data.frame(Rate = loansData$Interest.Rate, FICORange = loansData$FICO.Range)
+#rateByFICORange$FICORange <- with(rateByFICORange, reorder(FICORange, Rate, median, na.rm = TRUE))
+boxplot(Rate ~ FICORange, data = rateByFICORange, xaxt = "n")
+loansByFICORange <- table(rateByFICORange$FICORange)
+axis(1, las=2, at = 1:nrow(loansByFICORange), labels = names(loansByFICORange))
+```
+
+```{r rate_fico_median_plot, fig.height=5, fig.width=5}
+plot(loansData$FICO.Median, loansData$Interest.Rate, pch=19, cex=0.5)
+lmFICO <- lm(loansData$Interest.Rate ~ loansData$FICO.Median)
+lines(loansData$FICO.Median, lmFICO$fitted,col="red",lwd=3)
+```
+
+```{r rate_fico_median_lm_summary}
+summary(lmFICO)
+```
+
+Interest Rate and Open Credit Lines
+-----------------------------------
+
+```{r rate_lines_plot, fig.height=5, fig.width=5}
+loansDataFilteredOCLNa <- loansData[!is.na(loansData$Open.CREDIT.Lines),]
+plot(loansDataFilteredOCLNa$Open.CREDIT.Lines, loansDataFilteredOCLNa$Interest.Rate, pch=19, cex=0.5)
+lmLines <- lm(loansDataFilteredOCLNa$Interest.Rate ~ loansDataFilteredOCLNa$Open.CREDIT.Lines)
+lines(loansDataFilteredOCLNa$Open.CREDIT.Lines,lmLines$fitted,col="red",lwd=3)
+```
+
+```{r rate_lines_lm_summary}
+summary(lmLines)
+```
+
+Interest Rate and Revolving Credit Balance
+------------------------------------------
+
+```{r rate_revolving_plot, fig.height=5, fig.width=5}
+loansDataFilteredRCBNa <- loansData[!is.na(loansData$Revolving.CREDIT.Balance),]
+plot(loansDataFilteredRCBNa$Revolving.CREDIT.Balance, loansDataFilteredRCBNa$Interest.Rate, pch=19, cex=0.5, log="x")
+lmRevolving <- lm(loansDataFilteredRCBNa$Interest.Rate ~ log(loansDataFilteredRCBNa$Revolving.CREDIT.Balance))
+lines(loansDataFilteredRCBNa$Revolving.CREDIT.Balance, lmRevolving$fitted, col="red", lwd=3)
+```
+
+```{r rate_revolving_lm_summary}
+summary(lmIncome)
+```
+
+Interest Rate and Inquiries in the Last 6 Months
+------------------------------------------------
+
+```{r rate_inquiries_plot, fig.height=5, fig.width=5}
+plot(loansData$Inquiries.in.the.Last.6.Months, loansData$Interest.Rate, pch=19, cex=0.5)
+```
+
+Interest Rate and Employment Length
+-----------------------------------
+
+```{r rate_employment_plot, fig.height=5, fig.width=5}
+plot(loansData$Employment.Length, loansData$Interest.Rate, pch=19, cex=0.5)
 ```
