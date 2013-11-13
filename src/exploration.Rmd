@@ -35,12 +35,12 @@ Interest Rate and Amount Funded
 
 ```{r rate_funded_plot, fig.height=5, fig.width=5}
 plot(loansData$Amount.Funded.By.Investors, loansData$Interest.Rate, pch=19, cex=0.5)
-lmFunded <- lm(loansData$Interest.Rate ~ loansData$Amount.Funded.By.Investors)
-lines(loansData$Amount.Funded.By.Investors,lmFunded$fitted,col="red",lwd=3)
+lmAmountFunded <- lm(loansData$Interest.Rate ~ loansData$Amount.Funded.By.Investors)
+lines(loansData$Amount.Funded.By.Investors, lmAmountFunded$fitted,col="red",lwd=3)
 ```
 
 ```{r rate_funded_lm_summary}
-summary(lmFunded)
+summary(lmAmountFunded)
 ```
 
 Interest Rate and Loan Length
@@ -74,12 +74,12 @@ Interest Rate and Debt to Income Ratio
 
 ```{r rate_diratio_plot, fig.height=5, fig.width=5}
 plot(loansData$Debt.To.Income.Ratio, loansData$Interest.Rate, pch=19, cex=0.5)
-lmDIRatio <- lm(loansData$Interest.Rate ~ loansData$Debt.To.Income.Ratio)
-lines(loansData$Debt.To.Income.Ratio,lmDIRatio$fitted,col="red",lwd=3)
+lmD2IRatio <- lm(loansData$Interest.Rate ~ loansData$Debt.To.Income.Ratio)
+lines(loansData$Debt.To.Income.Ratio, lmD2IRatio$fitted,col="red",lwd=3)
 ```
 
 ```{r rate_diratio_lm_summary}
-summary(lmDIRatio)
+summary(lmD2IRatio)
 ```
 
 Interest Rate and State
@@ -116,14 +116,14 @@ Interest Rate and Monthly Income
 --------------------------------
 
 ```{r rate_income_plot, fig.height=5, fig.width=5}
-loansDataFilteredMINa <- loansData[!is.na(loansData$Monthly.Income),]
-plot(loansDataFilteredMINa$Monthly.Income, loansDataFilteredMINa$Interest.Rate, pch=19, cex=0.5, log="x")
-lmIncome <- lm(loansDataFilteredMINa$Interest.Rate ~ log(loansDataFilteredMINa$Monthly.Income))
-lines(loansDataFilteredMINa$Monthly.Income, lmIncome$fitted, col="red", lwd=3)
+withoutMonthlyIncomeNA <- loansData[!is.na(loansData$Monthly.Income),]
+plot(withoutMonthlyIncomeNA$Monthly.Income, withoutMonthlyIncomeNA$Interest.Rate, pch=19, cex=0.5, log="x")
+lmMonthlyIncome <- lm(withoutMonthlyIncomeNA$Interest.Rate ~ log(withoutMonthlyIncomeNA$Monthly.Income))
+lines(withoutMonthlyIncomeNA$Monthly.Income, lmMonthlyIncome$fitted, col="red", lwd=3)
 ```
 
 ```{r rate_income_lm_summary}
-summary(lmIncome)
+summary(lmMonthlyIncome)
 ```
 
 Interest Rate and FICO Range
@@ -143,52 +143,67 @@ axis(1, las=2, at = 1:nrow(loansByFICORange), labels = names(loansByFICORange))
 
 ```{r rate_fico_median_plot, fig.height=5, fig.width=5}
 plot(loansData$FICO.Median, loansData$Interest.Rate, pch=19, cex=0.5)
-lmFICO <- lm(loansData$Interest.Rate ~ loansData$FICO.Median)
-lines(loansData$FICO.Median, lmFICO$fitted,col="red",lwd=3)
+lmFICORate <- lm(loansData$Interest.Rate ~ loansData$FICO.Median)
+lines(loansData$FICO.Median, lmFICORate$fitted,col="red",lwd=3)
 ```
 
 ```{r rate_fico_median_lm_summary}
-summary(lmFICO)
+summary(lmFICORate)
 ```
 
 Interest Rate and Open Credit Lines
 -----------------------------------
 
 ```{r rate_lines_plot, fig.height=5, fig.width=5}
-loansDataFilteredOCLNa <- loansData[!is.na(loansData$Open.CREDIT.Lines),]
-plot(loansDataFilteredOCLNa$Open.CREDIT.Lines, loansDataFilteredOCLNa$Interest.Rate, pch=19, cex=0.5)
-lmLines <- lm(loansDataFilteredOCLNa$Interest.Rate ~ loansDataFilteredOCLNa$Open.CREDIT.Lines)
-lines(loansDataFilteredOCLNa$Open.CREDIT.Lines,lmLines$fitted,col="red",lwd=3)
+withoutOpenCreditLinesNA <- loansData[!is.na(loansData$Open.CREDIT.Lines),]
+plot(withoutOpenCreditLinesNA$Open.CREDIT.Lines, withoutOpenCreditLinesNA$Interest.Rate, pch=19, cex=0.5)
+lmOpenCreditLines <- lm(withoutOpenCreditLinesNA$Interest.Rate ~ withoutOpenCreditLinesNA$Open.CREDIT.Lines)
+lines(withoutOpenCreditLinesNA$Open.CREDIT.Lines, lmOpenCreditLines$fitted,col="red",lwd=3)
 ```
 
 ```{r rate_lines_lm_summary}
-summary(lmLines)
+summary(lmOpenCreditLines)
 ```
 
 Interest Rate and Revolving Credit Balance
 ------------------------------------------
 
 ```{r rate_revolving_plot, fig.height=5, fig.width=5}
-loansDataFilteredRCBNa <- loansData[!is.na(loansData$Revolving.CREDIT.Balance),]
-plot(loansDataFilteredRCBNa$Revolving.CREDIT.Balance, loansDataFilteredRCBNa$Interest.Rate, pch=19, cex=0.5, log="x")
-lmRevolving <- lm(loansDataFilteredRCBNa$Interest.Rate ~ log(loansDataFilteredRCBNa$Revolving.CREDIT.Balance))
-lines(loansDataFilteredRCBNa$Revolving.CREDIT.Balance, lmRevolving$fitted, col="red", lwd=3)
+withoutRevolvingCreditBalanceNA <- loansData[!is.na(loansData$Revolving.CREDIT.Balance)
+                                             & loansData$Revolving.CREDIT.Balance > 0,]
+plot(withoutRevolvingCreditBalanceNA$Revolving.CREDIT.Balance, withoutRevolvingCreditBalanceNA$Interest.Rate, pch=19, cex=0.5, log="x")
+lmRevolvingCreditBalance <- lm(withoutRevolvingCreditBalanceNA$Interest.Rate ~ log(withoutRevolvingCreditBalanceNA$Revolving.CREDIT.Balance))
+lines(withoutRevolvingCreditBalanceNA$Revolving.CREDIT.Balance, lmRevolvingCreditBalance$fitted, col="red", lwd=3)
 ```
 
 ```{r rate_revolving_lm_summary}
-summary(lmIncome)
+summary(lmRevolvingCreditBalance)
 ```
 
 Interest Rate and Inquiries in the Last 6 Months
 ------------------------------------------------
 
 ```{r rate_inquiries_plot, fig.height=5, fig.width=5}
-plot(loansData$Inquiries.in.the.Last.6.Months, loansData$Interest.Rate, pch=19, cex=0.5)
+withoutInquiriesNA <- loansData[!is.na(loansData$Inquiries.in.the.Last.6.Months),]
+plot(withoutInquiriesNA$Inquiries.in.the.Last.6.Months, withoutInquiriesNA$Interest.Rate, pch=19, cex=0.5)
+lmInquiries <- lm(withoutInquiriesNA$Interest.Rate ~ withoutInquiriesNA$Inquiries.in.the.Last.6.Months)
+lines(withoutInquiriesNA$Inquiries.in.the.Last.6.Months, lmInquiries$fitted, col="red", lwd=3)
+```
+
+```{r rate_inquiries_lm_summary}
+summary(lmInquiries)
 ```
 
 Interest Rate and Employment Length
 -----------------------------------
 
 ```{r rate_employment_plot, fig.height=5, fig.width=5}
-plot(loansData$Employment.Length, loansData$Interest.Rate, pch=19, cex=0.5)
+withoutEmploymentLengthNA <- loansData[!is.na(loansData$Employment.Length),]
+plot(withoutEmploymentLengthNA$Employment.Length, withoutEmploymentLengthNA$Interest.Rate, pch=19, cex=0.5)
+lmEmploymentLength <- lm(withoutEmploymentLengthNA$Interest.Rate ~ withoutEmploymentLengthNA$Employment.Length)
+lines(withoutEmploymentLengthNA$Employment.Length, lmEmploymentLength$fitted, col="red", lwd=3)
+```
+
+```{r rate_employment_lm_summary}
+summary(lmEmploymentLength)
 ```
