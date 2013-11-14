@@ -19,12 +19,12 @@ require(Hmisc)
 Load project with ProjectTemplate.
 
 ```{r load_project, warning=FALSE}
-require('ProjectTemplate')
+require(ProjectTemplate)
 reload.project()
 ```
 
-Interest Rate
--------------
+Interest Rate and its relation with other variables
+---------------------------------------------------
 
 ```{r rate_summary}
 summary(loansData$Interest.Rate)
@@ -123,30 +123,6 @@ lines(withoutMonthlyIncomeNA$Monthly.Income, lmMonthlyIncome$fitted, col="red", 
 summary(lmMonthlyIncome)
 ```
 
-### Interest Rate and FICO Range
-
-```{r rate_fico_summary}
-tapply(loansData$Interest.Rate, as.factor(loansData$FICO.Range), summary)
-```
-
-```{r rate_fico_boxplot, fig.height=5, fig.width=10}
-rateByFICORange = data.frame(Rate = loansData$Interest.Rate, FICORange = loansData$FICO.Range)
-#rateByFICORange$FICORange <- with(rateByFICORange, reorder(FICORange, Rate, median, na.rm = TRUE))
-boxplot(Rate ~ FICORange, data = rateByFICORange, xaxt = "n")
-loansByFICORange <- table(rateByFICORange$FICORange)
-axis(1, las=2, at = 1:nrow(loansByFICORange), labels = names(loansByFICORange))
-```
-
-```{r rate_fico_median_plot, fig.height=5, fig.width=5}
-plot(loansData$FICO.Median, loansData$Interest.Rate, pch=19, cex=0.5)
-lmFICORate <- lm(loansData$Interest.Rate ~ loansData$FICO.Median)
-lines(loansData$FICO.Median, lmFICORate$fitted,col="red",lwd=3)
-```
-
-```{r rate_fico_median_lm_summary}
-summary(lmFICORate)
-```
-
 ### Interest Rate and Open Credit Lines
 
 ```{r rate_lines_plot, fig.height=5, fig.width=5}
@@ -198,4 +174,61 @@ lines(withoutEmploymentLengthNA$Employment.Length, lmEmploymentLength$fitted, co
 
 ```{r rate_employment_lm_summary}
 summary(lmEmploymentLength)
+```
+
+Interest Rate, FICO Range and other variables
+---------------------------------------------
+
+### Interest Rate and FICO Range
+
+```{r rate_fico_summary}
+tapply(loansData$Interest.Rate, as.factor(loansData$FICO.Range), summary)
+```
+
+```{r rate_fico_boxplot, fig.height=5, fig.width=10}
+rateByFICORange = data.frame(Rate = loansData$Interest.Rate, FICORange = loansData$FICO.Range)
+#rateByFICORange$FICORange <- with(rateByFICORange, reorder(FICORange, Rate, median, na.rm = TRUE))
+boxplot(Rate ~ FICORange, data = rateByFICORange, xaxt = "n")
+loansByFICORange <- table(rateByFICORange$FICORange)
+axis(1, las=2, at = 1:nrow(loansByFICORange), labels = names(loansByFICORange))
+```
+
+```{r rate_fico_median_plot, fig.height=5, fig.width=5}
+plot(loansData$FICO.Median, loansData$Interest.Rate, pch=19, cex=0.5)
+lmFICORate <- lm(loansData$Interest.Rate ~ loansData$FICO.Median)
+lines(loansData$FICO.Median, lmFICORate$fitted,col="red",lwd=3)
+```
+
+```{r rate_fico_median_lm_summary}
+summary(lmFICORate)
+```
+
+The regression line is
+
+`Interest.Rate = 72.93462 (+- 1.19251) - 0.08457 (+- 0.00168) * FICO.Range.Median`
+
+with an adjusted R2 of 0.503.
+
+### Not explained by FICO Range
+
+```{r rate_fico_not_expl}
+unexplainedByFICORange = lmFICORate$residuals
+```
+
+#### Amount Funded by Investors
+
+```{r amount_not_expl}
+plot(loansData$Amount.Funded.By.Investors, unexplainedByFICORange, pch=19, cex=0.5)
+lmAmountNotExpl <- lm(unexplainedByFICORange ~ loansData$Amount.Funded.By.Investors)
+lines(loansData$Amount.Funded.By.Investors, lmAmountNotExpl$fitted,col="red",lwd=3)
+```
+
+```{r amount_not_expl_lm_summary}
+summary(lmAmountNotExpl)
+```
+
+#### Loan Length by Investors
+
+```{r length_not_expl, fig.height=5, fig.width=5}
+boxplot(unexplainedByFICORange ~ as.factor(loansData$Loan.Length.Months))
 ```
