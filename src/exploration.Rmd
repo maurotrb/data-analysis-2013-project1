@@ -37,9 +37,10 @@ boxplot(loansData$Interest.Rate)
 ### Interest Rate and Amount Funded
 
 ```{r rate_funded_plot, fig.height=5, fig.width=5}
-plot(loansData$Amount.Funded.By.Investors, loansData$Interest.Rate, pch=19, cex=0.5)
-lmAmountFunded <- lm(loansData$Interest.Rate ~ loansData$Amount.Funded.By.Investors)
-lines(loansData$Amount.Funded.By.Investors, lmAmountFunded$fitted,col="red",lwd=3)
+withoutAmountFundedNA <- loansData[!is.na(loansData$Amount.Funded.By.Investors),]
+plot(withoutAmountFundedNA$Amount.Funded.By.Investors, withoutAmountFundedNA$Interest.Rate, pch=19, cex=0.5)
+lmAmountFunded <- lm(withoutAmountFundedNA$Interest.Rate ~ withoutAmountFundedNA$Amount.Funded.By.Investors)
+lines(withoutAmountFundedNA$Amount.Funded.By.Investors, lmAmountFunded$fitted,col="red",lwd=3)
 ```
 
 ```{r rate_funded_lm_summary}
@@ -215,7 +216,7 @@ with an adjusted R2 of 0.503.
 unexplainedByFICORange = lmFICORate$residuals
 ```
 
-#### Amount Funded by Investors
+#### Not explained and Amount Funded by Investors
 
 ```{r amount_not_expl}
 plot(loansData$Amount.Funded.By.Investors, unexplainedByFICORange, pch=19, cex=0.5)
@@ -227,8 +228,67 @@ lines(loansData$Amount.Funded.By.Investors, lmAmountNotExpl$fitted,col="red",lwd
 summary(lmAmountNotExpl)
 ```
 
-#### Loan Length by Investors
+```{r amount_not_expl_plot, fig.height=5, fig.width=5}
+maxy= max(unexplainedByFICORange)
+miny= min(unexplainedByFICORange)
+maxx= max(loansData$Interest.Rate)
+minx= min(loansData$Interest.Rate)
+colist = c("#FF000033","#00FF0033","#0000FF33")
+rowcriteria = loansData$Amount.Funded.Range=="[  200, 7500)"
+plot(loansData$Interest.Rate[rowcriteria]
+     ,unexplainedByFICORange[rowcriteria]
+     ,col=colist[1]
+     ,pch=19
+     ,xlim=c(minx,maxx)
+     ,ylim=c(miny,maxy)
+     ,frame.plot=FALSE
+     ,xlab="Interest Rate", ylab="Residuals"
+     ,cex=0.5)
+rowcriteria = loansData$Amount.Funded.Range=="[ 7500,14075)"
+points(loansData$Interest.Rate[rowcriteria]
+       ,unexplainedByFICORange[rowcriteria]
+       ,col=colist[2]
+       ,pch=19
+       ,cex=0.5)
+rowcriteria = loansData$Amount.Funded.Range=="[14075,35000]"
+points(loansData$Interest.Rate[rowcriteria]
+       ,unexplainedByFICORange[rowcriteria]
+       ,col=colist[3]
+       ,pch=19
+       ,cex=0.5)
+labels <- c("[  200, 7500)", "[ 7500,14075)", "[14075,35000]")
+position <- 'bottomright'
+inset <- c(0, 0.04)
+legend(position, labels, fill=colist, inset=inset)
+abline(h=0, col="gray", lwd="3")
+```
+
+#### Not explained and Loan Length by Investors
 
 ```{r length_not_expl, fig.height=5, fig.width=5}
 boxplot(unexplainedByFICORange ~ as.factor(loansData$Loan.Length.Months))
+```
+
+```{r length_not_expl_plot, fig.height=5, fig.width=5}
+rowcriteria = loansData$Loan.Length.Months==36
+plot(loansData$Interest.Rate[rowcriteria]
+     ,unexplainedByFICORange[rowcriteria]
+     ,col=colist[1]
+     ,pch=19
+     ,xlim=c(minx,maxx)
+     ,ylim=c(miny,maxy)
+     ,frame.plot=FALSE
+     ,xlab="Interest Rate", ylab="Residuals"
+     ,cex=0.5)
+rowcriteria = loansData$Loan.Length.Months==60
+points(loansData$Interest.Rate[rowcriteria]
+       ,unexplainedByFICORange[rowcriteria]
+       ,col=colist[2]
+       ,pch=19
+       ,cex=0.5)
+labels <- c("36", "60")
+position <- 'bottomright'
+inset <- c(0.04, 0.04)
+legend(position, labels, fill=colist, inset=inset)
+abline(h=0, col="gray", lwd="3")
 ```
