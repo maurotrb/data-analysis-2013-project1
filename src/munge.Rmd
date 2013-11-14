@@ -119,8 +119,14 @@ Adding columns with Amount.Funded.By.Investors ranges
 -----------------------------------------------------
 `Amount.Funded.By.Investors` is imported as numeric.
 
+Some dirty values are present: 0 and -0.10.
+These are converted to NA.
+```{r, eval=FALSE}
+<<amount_funded_zero2na>>
+```
+
 Conversion to numerical values could be useful for exploration and analysis.
-One column is added, with eight quantile ranges.
+One column is added, with three quantile ranges.
 ```{r, eval=FALSE}
 <<amount_funded_ranges>>
 ```
