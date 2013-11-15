@@ -125,7 +125,7 @@ These are converted to NA.
 <<amount_funded_zero2na>>
 ```
 
-Conversion to numerical values could be useful for exploration and analysis.
+Cutting into ranges could be useful for exploration and analysis.
 One column is added, with three quantile ranges.
 ```{r, eval=FALSE}
 <<amount_funded_ranges>>
