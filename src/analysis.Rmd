@@ -1,0 +1,25 @@
+Exploration
+===========
+
+Project startup
+---------------
+
+Setting knitr options.
+
+``` {r knitr_options}
+require(knitr)
+opts_knit$set(root.dir="..")
+opts_chunk$set(fig.path="../graphs/analysis-")
+```
+
+Load required libraries.
+```{r load_libraries, warning=FALSE}
+require(Hmisc)
+require(RColorBrewer)
+```
+Load project with ProjectTemplate.
+
+```{r load_project, warning=FALSE}
+require(ProjectTemplate)
+reload.project()
+```
