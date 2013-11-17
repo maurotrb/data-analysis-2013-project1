@@ -1,5 +1,5 @@
-Exploration
-===========
+Analysis
+========
 
 Project startup
 ---------------
@@ -22,4 +22,272 @@ Load project with ProjectTemplate.
 ```{r load_project, warning=FALSE}
 require(ProjectTemplate)
 reload.project()
+```
+
+Load munge R script.
+```{r external_code}
+read_chunk("munge/01-A.R")
+```
+
+Data Munging
+------------
+
+Based on initial data inspection and exploration data were tidied up and some
+columns were added to help the analysis.
+
+Here the most significant munging.
+
+### Compute FICO.Range median values
+
+FICO score is the principal predictor of loan rate.
+
+To better analyse this relation, a column was added with FICO.Range median value.
+Values of this column were obtained transforming from character to numeric the
+lower and upper limits of each range.
+```{r, eval=FALSE}
+<<fico_lower_upper_median>>
+```
+```{r, echo=FALSE}
+names(table(loansData$FICO.Median))
+```
+
+### Cut Amount.Funded.By.Investors in ranges
+
+Exploration revelead the amount funded is a confounder for the relation between
+interest rate and FICO score.
+
+To better analyse the influence of this confounder, a column was added with ranges
+of amount funded with the cut2 function (3 percentiles).
+```{r, eval=FALSE}
+<<amount_funded_ranges>>
+```
+
+Previously amount funded values were tidied, eliminating 0 and -0.10 values
+(considered not significant for the analysis) and substituting them with NAs.
+```{r, eval=FALSE}
+<<amount_funded_zero2na>>
+```
+
+### Preparing data frame for the analysis
+
+The data frame used for exploration consisted in 2500 observation on 18 variables.
+
+It is subsetted to:
+*  mantain only the variables used for the analysis (6)
+*  filter the observations to exclude those with amount funded equal to NA (2494 remaining)
+
+```{r data_subset}
+loansDataAn <- loansData[,c(3,2,18,4,10,17)]
+loansDataAn <- loansDataAn[!is.na(loansDataAn$Amount.Funded.By.Investors),]
+```
+
+Finally Amount Funded range, FICO range, and Loand Lenghts are converted to factor.
+```{r range2factor}
+loansDataAn$Amount.Funded.Range <- as.factor(loansDataAn$Amount.Funded.Range)
+loansDataAn$FICO.Range <- as.factor(loansDataAn$FICO.Range)
+loansDataAn$Loan.Length.Months <- as.factor(loansDataAn$Loan.Length.Months)
+```
+
+Data Summaries
+--------------
+
+```{r data_summaries}
+dim(loansDataAn)
+head(loansDataAn)
+summary(loansDataAn)
+```
+
+Analyses
+--------
+
+### Interest rate and its predictors
+
+#### FICO score
+
+There is a clear negative correlation between loan rate and FICO score.
+
+```{r rate_fico_boxplot, fig.height=5, fig.width=10}
+boxplot(loansDataAn$Interest.Rate ~ loansDataAn$FICO.Range, xaxt = "n")
+loansByFICORange <- table(loansDataAn$FICO.Range)
+axis(1, las=2, at = 1:nrow(loansByFICORange), labels = names(loansByFICORange))
+```
+```{r rate_fico_summary}
+tapply(loansDataAn$Interest.Rate, loansDataAn$FICO.Range, summary)
+```
+
+#### Loan length
+
+There is a slightly positive correlation between loan rate and loan length:
+longer loans (60 months vs. 36 months) are risky and so interest rates are higher.
+```{r rate_length_boxplot, fig.height=5, fig.width=5}
+boxplot(loansDataAn$Interest.Rate ~ loansDataAn$Loan.Length.Months)
+```
+```{r rate_length_summary}
+tapply(loansDataAn$Interest.Rate, loansDataAn$Loan.Length.Months, summary)
+```
+
+#### Amount funded
+
+There is even a slightly positive correlation between loan rate and amount funded.
+The range from $200 to $7,500 and from $7,500 to $14,075 have a similar median rate.
+But the range from $14,075 to $35,000 has a median rate more than 2% higher.
+
+```{r rate_funded_boxplot, fig.height=5, fig.width=7.5}
+boxplot(loansDataAn$Interest.Rate ~ loansDataAn$Amount.Funded.Range)
+```
+```{r rate_funded_summary}
+tapply(loansDataAn$Interest.Rate, loansDataAn$Amount.Funded.Range, summary)
+```
+
+### Models
+
+#### Interest rate and FICO score (Model 1)
+
+```{r model1_lm_summary}
+lm1 <- lm(loansDataAn$Interest.Rate ~ loansDataAn$FICO.Median)
+summary(lm1)
+```
+```{r model1_confint_summary}
+confint(lm1, level=0.95)
+```
+
+```{r model1_plot, fig.height=7, fig.width=12}
+rgbcols = c("#FF000033","#00FF0033","#0000FF33")
+par(mfrow = c(1, 2), mar=c(5,5,1,1), oma=c(0,0,4,1))
+# first panel
+palette(rgbcols)
+plot(loansDataAn$FICO.Median
+     ,loansDataAn$Interest.Rate
+     ,pch = 19
+     ,col = loansDataAn$Loan.Length.Months
+     ,ylim=c(0,max(loansDataAn$Interest.Rate))
+     ,xlim=c(min(loansDataAn$FICO.Median),max(loansDataAn$FICO.Median))
+     ,frame.plot=FALSE
+     ,xlab="FICO score with Loan length", ylab="Interest Rate (%)")
+lines(loansDataAn$FICO.Median, lm1$fitted,col="#70707099",lwd=3)
+labels <- c("36 months","60 months")
+position <- 'topright'
+inset <- c(0.05, 0.05)
+legend(position, labels, fill=rgbcols, inset=inset, bty = "n")
+mtext(text="(a)",side=3,line=0)
+# second panel
+par(mar=c(5,1,1,1))
+plot(loansDataAn$FICO.Median
+     ,loansDataAn$Interest.Rate
+     ,pch = 19
+     ,col = loansDataAn$Amount.Funded.Range
+     ,ylim=c(0,max(loansDataAn$Interest.Rate))
+     ,xlim=c(min(loansDataAn$FICO.Median),max(loansDataAn$FICO.Median))
+     ,frame.plot=FALSE
+     ,xlab="FICO score with Amount funded", ylab=""
+     ,yaxt = "n")
+lines(loansDataAn$FICO.Median, lm1$fitted,col="#70707099",lwd=3)
+labels <- c("[     $200 -   $7,500)",
+            "[  $7,500 - $14,075)",
+            "[$14,075 - $35,000]")
+position <- 'topright'
+inset <- c(0.05, 0.05)
+legend(position, labels, fill=rgbcols, inset=inset, bty = "n")
+mtext(text="(b)",side=3,line=0)
+mtext("Figure 1. Lending Club loans. Relationship between Interest rate and FICO score.", side=3, line=1, outer=TRUE, font=2)
+```
+```{r model1_plot2, fig.height=8, fig.width=12}
+par(mfrow = c(1, 3))
+#palette(rev(colorRampPalette(brewer.pal(9,"Blues"))(40)))
+palette(rev(colorRampPalette(rgbcols)(40)))
+plot(loansDataAn$Interest.Rate, lm1$residuals, pch = 19, col = loansDataAn$FICO.Range)
+palette(c(brewer.pal(5,"PRGn")[1],brewer.pal(5,"PRGn")[5]))
+plot(loansDataAn$Interest.Rate, lm1$residuals, pch = 19, col = loansDataAn$Loan.Length.Months)
+palette(c(brewer.pal(9,"Reds")[3],brewer.pal(9,"Reds")[6],brewer.pal(9,"Reds")[9]))
+plot(loansDataAn$Interest.Rate, lm1$residuals, pch = 19, col = loansDataAn$Amount.Funded.Range)
+```
+
+#### Interest Rate, FICO score and Loan length (Model 2)
+
+```{r model2_lm_summary}
+lm2 <- lm(loansDataAn$Interest.Rate ~ loansDataAn$FICO.Median + loansDataAn$Loan.Length.Months)
+summary(lm2)
+```
+```{r model2_confint_summary}
+confint(lm2, level=0.95)
+```
+```{r model2_plot, fig.height=8, fig.width=12}
+par(mfrow = c(1, 3))
+#palette(rev(colorRampPalette(brewer.pal(9,"Blues"))(40)))
+palette(rev(colorRampPalette(rgbcols)(40)))
+plot(loansDataAn$Interest.Rate, lm2$residuals, pch = 19, col = loansDataAn$FICO.Range)
+palette(c(brewer.pal(5,"PRGn")[1],brewer.pal(5,"PRGn")[5]))
+plot(loansDataAn$Interest.Rate, lm2$residuals, pch = 19, col = loansDataAn$Loan.Length.Months)
+palette(c(brewer.pal(9,"Reds")[3],brewer.pal(9,"Reds")[6],brewer.pal(9,"Reds")[9]))
+plot(loansDataAn$Interest.Rate, lm2$residuals, pch = 19, col = loansDataAn$Amount.Funded.Range)
+```
+
+#### Interest Rate, FICO score, Loan length and Amount funded (Model 3)
+
+```{r model3_lm_summary}
+lm3 <- lm(loansDataAn$Interest.Rate ~ loansDataAn$FICO.Median + loansDataAn$Loan.Length.Months + loansDataAn$Amount.Funded.Range)
+summary(lm3)
+```
+```{r model3_confint_summary}
+confint(lm3, level=0.95)
+```
+```{r model3_plot, fig.height=8, fig.width=12}
+par(mfrow = c(1, 3))
+#palette(rev(colorRampPalette(brewer.pal(9,"Blues"))(40)))
+palette(rev(colorRampPalette(rgbcols)(40)))
+plot(loansDataAn$Interest.Rate, lm3$residuals, pch = 19, col = loansDataAn$FICO.Range)
+palette(c(brewer.pal(5,"PRGn")[1],brewer.pal(5,"PRGn")[5]))
+plot(loansDataAn$Interest.Rate, lm3$residuals, pch = 19, col = loansDataAn$Loan.Length.Months)
+palette(c(brewer.pal(9,"Reds")[3],brewer.pal(9,"Reds")[6],brewer.pal(9,"Reds")[9]))
+plot(loansDataAn$Interest.Rate, lm3$residuals, pch = 19, col = loansDataAn$Amount.Funded.Range)
+```
+
+Figure making
+-------------
+
+```{r figure}
+## Save figure to pdf file
+pdf(file="graphs/finalFigure.pdf", height=10, width=20, family="Helvetica", pointsize=18)
+## Plot
+rgbcols = c("#FF000033","#00FF0033","#0000FF33")
+par(mfrow = c(1, 2), mar=c(5,6,1,.5), oma=c(0,0,4,1))
+# first panel
+palette(rgbcols)
+plot(loansDataAn$FICO.Median
+     ,loansDataAn$Interest.Rate
+     ,pch = 19
+     ,col = loansDataAn$Loan.Length.Months
+     ,ylim=c(0,max(loansDataAn$Interest.Rate))
+     ,xlim=c(min(loansDataAn$FICO.Median),max(loansDataAn$FICO.Median))
+     ,frame.plot=FALSE
+     ,xlab="FICO score with Loan length", ylab="Interest Rate (%)")
+lines(loansDataAn$FICO.Median, lm1$fitted,col="#70707099",lwd=3)
+labels <- c("36 months","60 months")
+position <- 'topright'
+inset <- c(0.05, 0.05)
+legend(position, labels, fill=rgbcols, inset=inset, bty = "n")
+mtext(text="(a)",side=3,line=0)
+# second panel
+par(mar=c(5,.5,1,6))
+plot(loansDataAn$FICO.Median
+     ,loansDataAn$Interest.Rate
+     ,pch = 19
+     ,col = loansDataAn$Amount.Funded.Range
+     ,ylim=c(0,max(loansDataAn$Interest.Rate))
+     ,xlim=c(min(loansDataAn$FICO.Median),max(loansDataAn$FICO.Median))
+     ,frame.plot=FALSE
+     ,xlab="FICO score with Amount funded",
+     ,yaxt = "n")
+axis(4)
+mtext("Interest Rate (%)",side=4,line=3)
+lines(loansDataAn$FICO.Median, lm1$fitted,col="#70707099",lwd=3)
+labels <- c("[     $200 -   $7,500)",
+            "[  $7,500 - $14,075)",
+            "[$14,075 - $35,000]")
+position <- 'topright'
+inset <- c(0.05, 0.05)
+legend(position, labels, fill=rgbcols, inset=inset, bty = "n")
+mtext(text="(b)",side=3,line=0)
+mtext("Figure 1. Lending Club loans. Relationship between Interest rate and FICO score.", side=3, line=1, outer=TRUE, font=2)
+dev.off()
 ```
