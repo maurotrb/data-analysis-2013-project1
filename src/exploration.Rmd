@@ -231,6 +231,17 @@ The regression line is
 
 with an adjusted R2 of 0.503.
 
+### Rate, FICO Range and potential confounders
+
+```{r rate_fico_conf_plot, fig.height=5, fig.width=10}
+par(mfrow = c(1, 2))
+palette(c("#FF000033","#00FF0033","#0000FF33"))
+plot(withoutAmountFundedNA$FICO.Median, withoutAmountFundedNA$Interest.Rate, pch = 19, col = as.factor(withoutAmountFundedNA$Amount.Funded.Range))
+lines(loansData$FICO.Median, lmFICORate$fitted,col="white",lwd=3)
+plot(withoutAmountFundedNA$FICO.Median, withoutAmountFundedNA$Interest.Rate, pch = 19, col = as.factor(withoutAmountFundedNA$Loan.Length.Months))
+lines(loansData$FICO.Median, lmFICORate$fitted,col="white",lwd=3)
+```
+
 ### Not explained by FICO Range
 
 ```{r rate_fico_not_expl}

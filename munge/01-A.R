@@ -1,3 +1,5 @@
+require(Hmisc)
+
 ## @knitr raw_data
 loansDataRaw <- loansData
 
