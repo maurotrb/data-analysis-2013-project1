@@ -1,7 +1,7 @@
-Data Analysis Assignement - Project 1
+Data Analysis Assignment - Project 1
 =====================================
 
-First assignement of [Data Analysis course on Coursera](https://www.coursera.org/course/dataanalysis), November 2013 edition.
+First assignment of [Data Analysis course on Coursera](https://www.coursera.org/course/dataanalysis), November 2013 edition.
 
 Data
 ----
